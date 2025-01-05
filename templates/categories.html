@@ -1,0 +1,286 @@
+{% extends "layout.html" %}
+
+{% block title %}Categories{% endblock %}
+{% block pagename %}Categories Management{% endblock %}
+
+
+{% block inner %}
+<div class="col-md-12">
+    <div class="card">
+        <!-- Card header -->
+        <div class="card-header">
+            <div class="d-flex align-items-center">
+                <h4 class="card-title">Category List</h4>
+                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal"
+                    id="addRowButton">
+                    <i class="fa fa-plus"></i>
+                    Add Category
+                </button>
+            </div>
+        </div>
+
+        <!-- Card body -->
+
+        <!-- Add Modal -->
+        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header border-0">
+                  <h5 class="modal-title">
+                    <span class="fw-mediumbold"> New</span>
+                    <span class="fw-light"> Category</span>
+                  </h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p class="small">
+                    Create a new category by filling the information below
+                  </p>
+
+                  <!-- Add Category Form -->
+                  <form method="post" id="addCategoryForm" action="/categories/create">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group form-group-default">
+                          <label>Category Name</label>
+                          <input type="text" id="addCategory" name="category" class="form-control" placeholder="category name" required/>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group form-group-default">
+                          <label>Transaction Type</label>
+                          <select id="addTransactionType" name="transaction_type_id" class="form-control" required>
+                            <option value="" disabled selected>Select Transaction Type</option>
+                            {% for transaction_type in transaction_types %}
+                            <option value="{{ transaction_type.transaction_type_id }}">{{ transaction_type.transaction_type_name }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group form-group-default">
+                          <label>description</label>
+                          <input id="addDescription" name="description" class="form-control" type="text"
+                            placeholder="description"/>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer border-0">
+                        <button type="submit" id="addRowButton" class="btn btn-primary">
+                          Add
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                          Close
+                        </button>
+                    </div>
+                  </form>
+                </div>
+                
+              </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            
+            <!-- Categories Table -->
+            <div class="table-responsive">
+                <table id="multi-filter-select" class="display table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Category name</th>
+                            <th>Transaction type</th>
+                            <th>Description</th>
+                            <th style="text-align:center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category.category_name }}</td>
+                            <td>{{ category.transaction_type.transaction_type_name }}</td>
+                            <td>{{ category.description }}</td>
+                            <td style="text-align:center">
+                                {% if category.category_name != 'transfer' %}
+                                <div class="form-button-action">
+                                    <button type="button" data-bs-toggle="tooltip" title="Update"
+                                        class="btn btn-link btn-primary btn-lg" 
+                                        onclick="openUpdateModal({{ category.id }},
+                                                                '{{ category.category_name }}',
+                                                                '{{ category.transaction_type_id }}',
+                                                                '{{ category.description }}')">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="button" data-bs-toggle="tooltip" title="Remove"
+                                    class="btn btn-link btn-danger" onclick="deleteCategory({{ category.id }})">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Category Update Modal -->
+            <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title">
+                                <span class="fw-mediumbold">Update</span>
+                                <span class="fw-light">Category</span>
+                            </h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small">
+                                Update the category information below
+                            </p>
+            
+                            <!-- Update Category Form -->
+                            <form method="post" id="updateCategoryForm" action="/categories/update">
+                                <input type="hidden" id="updateCategoryId" name="category_id" />
+            
+                                <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group form-group-default">
+                                        <label>Category Name</label>
+                                        <input type="text" id="updateCategory" name="category" class="form-control"
+                                            placeholder="category name" required/>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-group-default">
+                                          <label>Transaction Type</label>
+                                          <select id="updateTransactionType" name="transaction_type_id" class="form-control" required>
+                                            {% for transaction_type in transaction_types %}
+                                            <option value="{{ transaction_type.id }}">{{ transaction_type.transaction_type_name }}</option>
+                                            {% endfor %}
+                                          </select>
+                                        </div>
+                                      </div>
+                                    <div class="col-md-12">
+                                      <div class="form-group form-group-default">
+                                        <label>Description</label>
+                                        <input id="updateDescription" name="description" class="form-control" type="text"
+                                          placeholder="description"/>
+                                      </div>
+                                    </div>
+                                  </div>
+            
+                                <div class="modal-footer border-0">
+                                    <button type="submit" id="updateRowButton" class="btn btn-primary">
+                                        Update
+                                    </button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+{% if request.cookies.get("darkmode") == 'dark' %}
+    <style>
+        th {color: white !important;}
+    </style>
+{% endif %}
+<script>
+    function openUpdateModal(id, name, transaction_type, description) {
+        // Set form values
+        document.getElementById("updateCategoryId").value = id;
+        document.getElementById("updateCategory").value = name;
+        document.getElementById("updateTransactionType").value = transaction_type;
+        document.getElementById("updateDescription").value = description;
+
+        // Show the modal
+        $('#updateRowModal').modal('show');
+    }
+
+    function deleteCategory(categoryId) {
+        // Show SweetAlert confirmation dialog
+        swal({
+            title: "Are you sure?",
+            text: "All of the transactions associated with this category will be deleted, and you won't be able to revert this!",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    visible: true,
+                    text: "No, cancel!",
+                    className: "btn btn-danger",
+                },
+                confirm: {
+                    text: "Yes, delete it!",
+                    className: "btn btn-success",
+                },
+            },
+        }).then((willDelete) => {
+            if (willDelete) {
+                // Proceed to delete the category
+                fetch('/categories/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ category_id: categoryId }),
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // If the response redirects, follow the redirect
+                        window.location.href = response.url;
+                    } else {
+                        response.json().then(data => {
+                            swal("Error!", data.detail, {
+                                icon: "error",
+                                buttons: {
+                                    confirm: {
+                                        className: "btn btn-danger",
+                                    },
+                                },
+                            });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting transaction:', error);
+                    swal("Error!", "An error occurred while deleting the category.", {
+                        icon: "error",
+                        buttons: {
+                            confirm: {
+                                className: "btn btn-danger",
+                            },
+                        },
+                    });
+                });
+            } else {
+                swal("Cancelled", "Your category is safe!", {
+                    icon: "info",
+                    buttons: {
+                        confirm: {
+                            className: "btn btn-success",
+                        },
+                    },
+                });
+            }
+        });
+    }
+
+</script>
+{% endblock %}

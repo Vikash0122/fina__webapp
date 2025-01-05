@@ -1,0 +1,7 @@
+[
+    ['Bank', 'Wallet for bank accounts', 0],
+    ['E-wallet', 'Wallet for e-wallet app accounts such as Momo, Zalopay', 0],
+    ['Savings', 'Wallet for saving cash or accounts', 0],
+    ['Cash', 'Wallet for cash on hand', 0],
+    ['Investment', 'Wallet for financial assets such as stocks, bonds, funds', 0]
+]
